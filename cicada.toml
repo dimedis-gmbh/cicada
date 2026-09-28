@@ -1,0 +1,31 @@
+[jobs]
+## Where to search for jobs
+include = ["${XDG_CONFIG_HOME:-$HOME/.config}/cicada/*.yml"]
+
+[commands]
+
+## Timeout after which on_success and on_errors commands will be killed.
+## Applies to each command separately.
+## Default: 15 sec
+# time_out = "15 sec"
+
+[logging]
+
+## All internal errors will be logged.
+## This applies to failed commands, errors on writing the per-job log files, syntax errors, etc.
+## Default: /dev/log
+## @Todo: Needs research. What are the defaults on Linux and macOS?
+## Alternatively user can specify a log file
+
+## Internal log db
+## Default
+db_file = "~/.local/share/cicada/jobs.sqlite3"
+data_retention = "90 days"
+
+## Write last N bytes stderr of each job to the database
+stderr_bytes = 2048
+
+[defaults]
+## Default retention of job log files
+## Can be overwritten on a per-job basis, supports days, weeks, months, years
+log_retention = "30 days" # Default 30 days

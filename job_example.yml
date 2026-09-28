@@ -1,0 +1,42 @@
+# Set defaults for all jobs in the file.
+# Values can be overwritten on a job level.
+# Values on job level will overwrite the defaults entirely. Lists are not merged.
+defaults:
+  log_retention: 30 days # or 10 weeks, or 4 months
+  working_directory: /usr/local/share/bla # Default $HOME
+  shell: /bin/bash # default /bin/sh, shell used to execute the job
+
+# Definition of jobs
+jobs:
+  - name: Example Job
+    enabled: true # Default = true
+    exec: /usr/local/bin/my-job
+    hour: 2 # or */2 for every two hours
+    min: 05 # or */15 for every 15 minutes, leading 0 is optional
+    day_of_month: 22 # 1-31
+    month: 3 # 1-12
+    day_of_week: 5 # 0–7, Sunday = 0 or 7
+    # Old cron-style syntax, mutual exclusive with the above
+    crontab: "5 2 22 3 5"
+    log_file: ~/cicada-logs/my-job.log
+    log_retention: 90 days # or 10 weeks, or 4 months
+    log_datetime: false # default true, disable if your job already adds datetime to the output
+    on_success: >-
+      zabbix_sender -c /etc/zabbix/zabbix_agentd.conf
+      -k cron.log -i "Job %job completed with exit code %exit_code after %duration seconds"
+    on_error:
+      - >-
+        zabbix_sender -c /etc/zabbix/zabbix_agentd.conf
+        -k cron.log -i "Job %job failed with exit code %exit_code after %duration seconds
+        See %log_file for details."
+      - >-
+        cat "%log_file" | do-some-things.sh --foo
+    prerequisites:
+      - ip a | grep -q 192.168.1.1
+      - ping -c1 -t1 192.168.1.2
+    time_out: 2 hours # kill the job after this runtime, record it as failed, run on_error. Default: no timeout
+    block_doublerun: true # default = true, skip a run while the previous run is still active
+    env:
+      - MY_VAR: test
+      - SECOND_VAR: foo
+    working_directory: /usr/local/share/foo # Default $HOME
